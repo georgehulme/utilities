@@ -2,7 +2,6 @@ use clap::Parser;
 
 use worktree_utils::{command, config, project, worktree};
 
-
 fn main() {
     let args = command::Cli::parse();
     let mut config = config::load_config_from_file();

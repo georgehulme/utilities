@@ -1,5 +1,7 @@
 use crate::{
-    config::{self, Config}, error::ProjectNotExistsError, worktree
+    config::{self, Config},
+    error::ProjectNotExistsError,
+    worktree,
 };
 
 pub fn list_projects() {
@@ -26,11 +28,7 @@ pub fn print_project_path(
     Ok(())
 }
 
-pub fn add_project(
-    config: &mut Config,
-    project_name: String,
-    path: String,
-) {
+pub fn add_project(config: &mut Config, project_name: String, path: String) {
     let entry = config.get_vacant_project_entry(project_name).unwrap();
     entry.insert(config::ProjectConfig {
         path,
@@ -39,11 +37,7 @@ pub fn add_project(
     config::write_config_to_file(config);
 }
 
-pub fn rm_project(
-    config: &mut Config,
-    project_name: String,
-    keep: bool,
-) {
+pub fn rm_project(config: &mut Config, project_name: String, keep: bool) {
     let entry = config.get_occupied_project_entry(project_name).unwrap();
     let mut project = entry.remove();
     if !keep {
