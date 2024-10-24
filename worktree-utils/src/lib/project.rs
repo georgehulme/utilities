@@ -11,12 +11,12 @@ pub fn list_projects() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-pub fn cd_project(
+pub fn print_project_path(
     project_name: String
 ) -> Result<(), Box<dyn std::error::Error>> {
     let config = config::load_config()?;
     if let Some(project) = config.projects.get(&project_name) {
-        std::env::set_current_dir(&project.path)?;
+        println!("{}", &project.path);
     }
     Ok(())
 }

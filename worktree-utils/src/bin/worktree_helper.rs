@@ -7,7 +7,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     match args.command {
         // Project level
         command::Command::ListProjects => project::list_projects()?,
-        command::Command::CDProject { project_name } => project::cd_project(project_name)?,
+        command::Command::PrintProjectPath { project_name } => project::print_project_path(project_name)?,
         command::Command::AddProject { project_name, path } => {
             project::add_project(project_name, path)?
         }
@@ -16,10 +16,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         // Worktree level
         command::Command::ListWorktrees { project_name } => worktree::list_worktrees(project_name)?,
-        command::Command::CDWorktree {
+        command::Command::PrintWorktreePath {
             project_name,
             worktree_name,
-        } => worktree::cd_worktree(project_name, worktree_name)?,
+        } => worktree::print_worktree_path(project_name, worktree_name)?,
         command::Command::AddWorktree {
             project_name,
             worktree_name,

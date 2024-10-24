@@ -18,14 +18,14 @@ pub fn list_worktrees(project_name: String) -> Result<(), Box<dyn std::error::Er
     Ok(())
 }
 
-pub fn cd_worktree(
+pub fn print_worktree_path(
     project_name: String,
     worktree_name: String,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let config = config::load_config()?;
     if let Some(project) = config.projects.get(&project_name) {
         if let Some(worktree) = project.worktrees.get(&worktree_name) {
-            std::env::set_current_dir(worktree)?;
+            println!("{}", worktree);
         }
     }
     Ok(())

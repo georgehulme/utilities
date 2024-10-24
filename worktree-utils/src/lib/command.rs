@@ -12,7 +12,7 @@ pub enum Command {
     ListWorktrees {
         project_name: String,
     },
-    CDWorktree {
+    PrintWorktreePath {
         project_name: String,
         worktree_name: String,
     },
@@ -27,7 +27,7 @@ pub enum Command {
         worktree_name: String,
     },
     ListProjects,
-    CDProject {
+    PrintProjectPath {
         project_name: String,
     },
     AddProject {
