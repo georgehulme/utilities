@@ -4,11 +4,14 @@ use clap::{Parser, Subcommand};
 #[command(version, about, long_about = None)]
 pub struct Cli {
     #[command(subcommand)]
-    pub command: Command,
+    pub command: CliSubCommand,
 }
 
 #[derive(Debug, Subcommand)]
-pub enum Command {
+pub enum CliSubCommand {
+    GenerateShellCompletions {
+        out_dir: String,
+    },
     ListWorktrees {
         project_name: String,
     },
@@ -36,6 +39,7 @@ pub enum Command {
     },
     RemoveProject {
         project_name: String,
+        #[arg(long, short)]
         keep: bool,
     },
 }

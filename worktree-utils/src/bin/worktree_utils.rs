@@ -1,37 +1,51 @@
-use clap::Parser;
-
-use worktree_utils::{command, config, project, worktree};
+use clap::{CommandFactory, Parser};
+use clap_complete::{generate_to, Shell};
+use worktree_utils::{
+    cli::{Cli, CliSubCommand},
+    config, project, worktree,
+};
 
 fn main() {
-    let args = command::Cli::parse();
+    let args = worktree_utils::cli::Cli::parse();
     let mut config = config::load_config_from_file();
     match args.command {
+        CliSubCommand::GenerateShellCompletions { out_dir } => {
+            let cmd = &mut Cli::command();
+            let shell = Shell::from_env().unwrap();
+            generate_to(
+                shell,
+                cmd,
+                cmd.get_name().to_string(),
+                &out_dir,
+            ).unwrap();
+            println!("Please source the scripts in \"{out_dir}\" to enable code completion.")
+        }
         // Project level
-        command::Command::ListProjects => project::list_projects(),
-        command::Command::PrintProjectPath { project_name } => {
+        CliSubCommand::ListProjects => project::list_projects(),
+        CliSubCommand::PrintProjectPath { project_name } => {
             project::print_project_path(&mut config, project_name).unwrap();
         }
-        command::Command::AddProject { project_name, path } => {
+        CliSubCommand::AddProject { project_name, path } => {
             project::add_project(&mut config, project_name, path);
             config::write_config_to_file(&config);
         }
-        command::Command::RemoveProject { project_name, keep } => {
+        CliSubCommand::RemoveProject { project_name, keep } => {
             project::rm_project(&mut config, project_name, keep);
             config::write_config_to_file(&config);
         }
         // Worktree level
-        command::Command::ListWorktrees { project_name } => {
+        CliSubCommand::ListWorktrees { project_name } => {
             let project = config.get_occupied_project_entry(project_name).unwrap();
             worktree::list_worktrees(project.get());
         }
-        command::Command::PrintWorktreePath {
+        CliSubCommand::PrintWorktreePath {
             project_name,
             worktree_name,
         } => {
             let project = config.get_occupied_project_entry(project_name).unwrap();
             worktree::print_worktree_path(project.get(), worktree_name).unwrap();
         }
-        command::Command::AddWorktree {
+        CliSubCommand::AddWorktree {
             project_name,
             worktree_name,
             branch,
@@ -41,7 +55,7 @@ fn main() {
             worktree::add_worktree(project.get_mut(), worktree_name, branch, path);
             config::write_config_to_file(&config);
         }
-        command::Command::RemoveWorktree {
+        CliSubCommand::RemoveWorktree {
             project_name,
             worktree_name,
         } => {
@@ -49,5 +63,5 @@ fn main() {
             worktree::rm_worktree(project.get_mut(), worktree_name);
             config::write_config_to_file(&config);
         }
-    };
+    }
 }

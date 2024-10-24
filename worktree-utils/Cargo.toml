@@ -8,11 +8,12 @@ name = "worktree_utils"
 path = "src/lib/lib.rs"
 
 [[bin]]
-name = "worktree_helper"
-path = "src/bin/worktree_helper.rs"
+name = "worktree-utils"
+path = "src/bin/worktree_utils.rs"
 
 [dependencies]
 clap = { version = "4.5.20", features = ["derive"] }
+clap_complete = "4.5.35"
 git2 = "0.19.0"
 home = "0.5.9"
 prettytable-rs = "0.10.0"
