@@ -31,40 +31,47 @@ pub fn add_worktree(
     worktree_name: String,
     branch: String,
     path: String,
+    existing: bool,
 ) {
     let repo = git2::Repository::open(&project.path).unwrap();
-    repo.worktree(
-        &worktree_name,
-        std::path::PathBuf::from_str(&path).unwrap().as_path(),
-        Some(
-            git2::WorktreeAddOptions::new()
-                .checkout_existing(true)
-                .reference(Some(
-                    &repo
-                        .find_branch(&branch, git2::BranchType::Local)
-                        .unwrap()
-                        .into_reference(),
-                )),
-        ),
-    )
-    .unwrap();
+    if existing {
+        repo.worktree(
+            &worktree_name,
+            std::path::PathBuf::from_str(&path).unwrap().as_path(),
+            Some(
+                git2::WorktreeAddOptions::new()
+                    .checkout_existing(true)
+                    .reference(Some(
+                        &repo
+                            .find_branch(&branch, git2::BranchType::Local)
+                            .unwrap()
+                            .into_reference(),
+                    )),
+            ),
+        )
+        .unwrap();
+    } else {
+        repo.find_worktree(&worktree_name).unwrap();
+    }
     project
         .get_vacant_worktree_entry(worktree_name)
         .unwrap()
         .insert(path);
 }
 
-pub fn rm_worktree(project: &mut ProjectConfig, worktree_name: String) {
-    git2::Repository::open(&project.path)
-        .unwrap()
-        .find_worktree(&worktree_name)
-        .unwrap()
-        .prune(Some(
-            git2::WorktreePruneOptions::new()
-                .valid(true)
-                .working_tree(true),
-        ))
-        .unwrap();
+pub fn rm_worktree(project: &mut ProjectConfig, worktree_name: String, keep: bool) {
+    if !keep {
+        git2::Repository::open(&project.path)
+            .unwrap()
+            .find_worktree(&worktree_name)
+            .unwrap()
+            .prune(Some(
+                git2::WorktreePruneOptions::new()
+                    .valid(true)
+                    .working_tree(true),
+            ))
+            .unwrap();
+    }
     project
         .get_occupied_worktree_entry(worktree_name)
         .unwrap()

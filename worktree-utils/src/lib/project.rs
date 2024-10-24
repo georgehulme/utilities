@@ -28,12 +28,32 @@ pub fn print_project_path(
     Ok(())
 }
 
-pub fn add_project(config: &mut Config, project_name: String, path: String) {
+pub fn add_project(config: &mut Config, project_name: String, path: String, inherit: bool) {
     let entry = config.get_vacant_project_entry(project_name).unwrap();
-    entry.insert(config::ProjectConfig {
-        path,
-        worktrees: std::collections::HashMap::new(),
-    });
+    let repo = git2::Repository::open(&path).unwrap();
+    let worktrees = if inherit {
+        std::collections::HashMap::from_iter(
+            repo.worktrees()
+                .unwrap()
+                .into_iter()
+                .filter(Option::is_some)
+                .map(|worktree| {
+                    (
+                        String::from(worktree.unwrap()),
+                        String::from(
+                            repo.find_worktree(worktree.unwrap())
+                                .unwrap()
+                                .path()
+                                .to_str()
+                                .unwrap(),
+                        ),
+                    )
+                }),
+        )
+    } else {
+        std::collections::HashMap::new()
+    };
+    entry.insert(config::ProjectConfig { path, worktrees });
     config::write_config_to_file(config);
 }
 
@@ -43,7 +63,7 @@ pub fn rm_project(config: &mut Config, project_name: String, keep: bool) {
     if !keep {
         let worktrees = project.worktrees.to_owned();
         for (worktree_name, _) in worktrees {
-            worktree::rm_worktree(&mut project, worktree_name);
+            worktree::rm_worktree(&mut project, worktree_name, keep);
         }
     }
     config::write_config_to_file(config);

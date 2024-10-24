@@ -24,10 +24,14 @@ pub enum CliSubCommand {
         worktree_name: String,
         branch: String,
         path: String,
+        #[arg(long, short)]
+        existing: bool,
     },
     RemoveWorktree {
         project_name: String,
         worktree_name: String,
+        #[arg(long, short)]
+        keep: bool,
     },
     ListProjects,
     PrintProjectPath {
@@ -36,6 +40,8 @@ pub enum CliSubCommand {
     AddProject {
         project_name: String,
         path: String,
+        #[arg(long, short)]
+        inherit: bool,
     },
     RemoveProject {
         project_name: String,
