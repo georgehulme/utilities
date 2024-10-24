@@ -28,6 +28,13 @@ fn main() {
             project::add_project(&mut config, project_name, path, inherit);
             config::write_config_to_file(&config);
         }
+        CliSubCommand::RenameProject {
+            old_project_name,
+            new_project_name,
+        } => {
+            project::rename_project(&mut config, old_project_name, new_project_name);
+            config::write_config_to_file(&config);
+        }
         CliSubCommand::RemoveProject { project_name, keep } => {
             project::rm_project(&mut config, project_name, keep);
             config::write_config_to_file(&config);
@@ -53,6 +60,15 @@ fn main() {
         } => {
             let mut project = config.get_occupied_project_entry(project_name).unwrap();
             worktree::add_worktree(project.get_mut(), worktree_name, branch, path, existing);
+            config::write_config_to_file(&config);
+        }
+        CliSubCommand::RenameWorktree {
+            project_name,
+            old_worktree_name,
+            new_worktree_name,
+        } => {
+            let mut project = config.get_occupied_project_entry(project_name).unwrap();
+            worktree::rename_worktree(project.get_mut(), old_worktree_name, new_worktree_name);
             config::write_config_to_file(&config);
         }
         CliSubCommand::RemoveWorktree {

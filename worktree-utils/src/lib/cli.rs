@@ -27,6 +27,11 @@ pub enum CliSubCommand {
         #[arg(long, short)]
         existing: bool,
     },
+    RenameWorktree {
+        project_name: String,
+        old_worktree_name: String,
+        new_worktree_name: String,
+    },
     RemoveWorktree {
         project_name: String,
         worktree_name: String,
@@ -42,6 +47,10 @@ pub enum CliSubCommand {
         path: String,
         #[arg(long, short)]
         inherit: bool,
+    },
+    RenameProject {
+        old_project_name: String,
+        new_project_name: String,
     },
     RemoveProject {
         project_name: String,

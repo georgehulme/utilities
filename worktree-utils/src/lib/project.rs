@@ -54,7 +54,17 @@ pub fn add_project(config: &mut Config, project_name: String, path: String, inhe
         std::collections::HashMap::new()
     };
     entry.insert(config::ProjectConfig { path, worktrees });
-    config::write_config_to_file(config);
+}
+
+pub fn rename_project(config: &mut Config, old_project_name: String, new_project_name: String) {
+    let project = config
+        .get_occupied_project_entry(old_project_name)
+        .unwrap()
+        .remove();
+    config
+        .get_vacant_project_entry(new_project_name)
+        .unwrap()
+        .insert(project);
 }
 
 pub fn rm_project(config: &mut Config, project_name: String, keep: bool) {
@@ -66,5 +76,4 @@ pub fn rm_project(config: &mut Config, project_name: String, keep: bool) {
             worktree::rm_worktree(&mut project, worktree_name, keep);
         }
     }
-    config::write_config_to_file(config);
 }

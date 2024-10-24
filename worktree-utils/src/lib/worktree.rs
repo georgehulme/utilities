@@ -59,6 +59,21 @@ pub fn add_worktree(
         .insert(path);
 }
 
+pub fn rename_worktree(
+    project: &mut ProjectConfig,
+    old_worktree_name: String,
+    new_worktree_name: String,
+) {
+    let worktree = project
+        .get_occupied_worktree_entry(old_worktree_name)
+        .unwrap()
+        .remove();
+    project
+        .get_vacant_worktree_entry(new_worktree_name)
+        .unwrap()
+        .insert(worktree);
+}
+
 pub fn rm_worktree(project: &mut ProjectConfig, worktree_name: String, keep: bool) {
     if !keep {
         git2::Repository::open(&project.path)
