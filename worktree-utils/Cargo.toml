@@ -12,9 +12,9 @@ name = "worktree_helper"
 path = "src/bin/worktree_helper.rs"
 
 [dependencies]
-clap = {version = "4.5.20", features = ["derive"]}
+clap = { version = "4.5.20", features = ["derive"] }
 git2 = "0.19.0"
 home = "0.5.9"
 prettytable-rs = "0.10.0"
-serde = {version = "1.0.213", features = ["derive"]}
+serde = { version = "1.0.213", features = ["derive"] }
 serde_json = "1.0.132"

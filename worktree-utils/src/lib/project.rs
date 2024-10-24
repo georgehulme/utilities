@@ -1,56 +1,56 @@
-use crate::{config, worktree};
+use crate::{
+    config::{self, Config}, error::ProjectNotExistsError, worktree
+};
 
-pub fn list_projects() -> Result<(), Box<dyn std::error::Error>> {
-    let config = config::load_config()?;
+pub fn list_projects() {
+    let config = config::load_config_from_file();
     let mut table = prettytable::Table::new();
     table.add_row(prettytable::row!["Project", "Path"]);
     for project in config.projects {
         table.add_row(prettytable::row![project.0, project.1.path]);
     }
     table.printstd();
-    Ok(())
 }
 
 pub fn print_project_path(
-    project_name: String
-) -> Result<(), Box<dyn std::error::Error>> {
-    let config = config::load_config()?;
-    if let Some(project) = config.projects.get(&project_name) {
-        println!("{}", &project.path);
-    }
+    config: &mut Config,
+    project_name: String,
+) -> Result<(), ProjectNotExistsError> {
+    println!(
+        "{}",
+        match config.projects.get(&project_name) {
+            Some(project_config) => Ok(project_config.path.to_owned()),
+            None => Err(ProjectNotExistsError(project_name)),
+        }?
+    );
     Ok(())
 }
 
-pub fn add_project(project_name: String, path: String) -> Result<(), Box<dyn std::error::Error>> {
-    let mut config = config::load_config()?;
-    if let std::collections::hash_map::Entry::Vacant(entry) =
-        config.projects.entry(project_name.clone())
-    {
-        entry.insert(config::ProjectConfig {
-            path,
-            worktrees: std::collections::HashMap::new(),
-        });
-        config::update_config(&config)?;
-    } else {
-        println!("Project, {}, already exists", project_name);
-    };
-    Ok(())
+pub fn add_project(
+    config: &mut Config,
+    project_name: String,
+    path: String,
+) {
+    let entry = config.get_vacant_project_entry(project_name).unwrap();
+    entry.insert(config::ProjectConfig {
+        path,
+        worktrees: std::collections::HashMap::new(),
+    });
+    config::write_config_to_file(config);
 }
 
-pub fn rm_project(project_name: String, keep: bool) -> Result<(), Box<dyn std::error::Error>> {
-    let mut config = config::load_config()?;
-    if let std::collections::hash_map::Entry::Occupied(entry) =
-        config.projects.entry(project_name.clone())
-    {
-        let project = entry.remove();
-        if !keep {
-            for worktree_name in project.worktrees.values() {
-                worktree::rm_worktree(project_name.clone(), worktree_name.clone())?;
-            }
+pub fn rm_project(
+    config: &mut Config,
+    project_name: String,
+    keep: bool,
+) {
+    let entry = config.get_occupied_project_entry(project_name).unwrap();
+    let mut project = entry.remove();
+    if !keep {
+        let worktrees = project.worktrees.to_owned();
+        for (worktree_name, _) in worktrees {
+            worktree::rm_worktree(&mut project, worktree_name);
         }
-        config::update_config(&config)?;
-    } else {
-        println!("Project, {}, does not exist", project_name);
-    };
-    Ok(())
+    }
+    config::write_config_to_file(config);
 }
